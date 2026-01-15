@@ -1,0 +1,7 @@
+name = "app-masteroppgave2026"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+routes = [
+  { pattern = "app.masteroppgave2026.no/*", zone_name = "masteroppgave2026.no" }
+]
