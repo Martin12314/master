@@ -1,4 +1,4 @@
-name = "app-masteroppgave2026"
+name = "master"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 
