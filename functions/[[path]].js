@@ -1,34 +1,37 @@
-// _worker.js
+import indexHtml from '/index.html';
+import installerJs from './installer.js';
+import swJs from '/sw.js';
+
 const BACKEND_ORIGIN = 'https://intermediate.tailfd92d1.ts.net';
 
 export default {
-  async fetch(request, env, ctx) {
+  async fetch(request) {
     const url = new URL(request.url);
 
-    // 1️⃣ Trusted assets served from Pages
-    if (
-      url.pathname === '/' ||
-      url.pathname === '/index.html' ||
-      url.pathname === '/installer.js' ||
-      url.pathname === '/sw.js'
-    ) {
-      return env.ASSETS.fetch(request);
+    // ---- Trusted installer assets ----
+    if (url.pathname === '/' || url.pathname === '/index.html') {
+      return new Response(indexHtml, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
-    // 2️⃣ EVERYTHING else → proxy to intermediate
-    const upstreamUrl = new URL(
-      url.pathname + url.search,
-      BACKEND_ORIGIN
-    );
+    if (url.pathname === '/installer.js') {
+      return new Response(installerJs, {
+        headers: { 'Content-Type': 'application/javascript; charset=utf-8' }
+      });
+    }
 
-    const upstreamReq = new Request(upstreamUrl, {
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-      redirect: 'manual'
-    });
+    if (url.pathname === '/sw.js') {
+      return new Response(swJs, {
+        headers: { 'Content-Type': 'application/javascript; charset=utf-8' }
+      });
+    }
 
-    upstreamReq.headers.set('X-Proxy-By', 'cloudflare-pages');
+    // ---- Everything else → intermediate ----
+    const upstreamUrl = new URL(url.pathname + url.search, BACKEND_ORIGIN);
+
+    const upstreamReq = new Request(upstreamUrl, request);
+    upstreamReq.headers.set('X-Proxy-By', 'cloudflare-worker');
 
     return fetch(upstreamReq);
   }
