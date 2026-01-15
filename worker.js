@@ -1,6 +1,6 @@
-import indexHtml from './index.html';
-import installerJs from './installer.js';
-import swJs from './sw.js';
+import indexHtml from './index.html.txt';
+import installerJs from './installer.js.txt';
+import swJs from './sw.js.txt';
 
 const BACKEND_ORIGIN = 'https://intermediate.tailfd92d1.ts.net';
 
@@ -8,7 +8,6 @@ export default {
   async fetch(request) {
     const url = new URL(request.url);
 
-    // ---- Trusted installer assets ----
     if (url.pathname === '/' || url.pathname === '/index.html') {
       return new Response(indexHtml, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
@@ -27,9 +26,8 @@ export default {
       });
     }
 
-    // ---- Everything else → intermediate ----
+    // Proxy everything else
     const upstreamUrl = new URL(url.pathname + url.search, BACKEND_ORIGIN);
-
     const upstreamReq = new Request(upstreamUrl, request);
     upstreamReq.headers.set('X-Proxy-By', 'cloudflare-worker');
 
